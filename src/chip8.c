@@ -15,6 +15,9 @@ void createCPU(CPU *cpu) {
 
 	for(uint8_t i = 0; i < FONTSET_SIZE; ++i)
 		cpu->memory[FONTSET_START_ADDRESS + i] = fontset[i];
+
+	time_t t;
+	srand((unsigned) time(&t));
 }
 
 void destroyCPU(CPU *cpu) {
@@ -35,3 +38,6 @@ void LoadROM(CPU *cpu, const char *filename) {
 		cpu->memory[START_ADDRESS + i] = buffer[i];
 }
 
+uint8_t RandByte(void) {
+	return rand() % 256;
+}

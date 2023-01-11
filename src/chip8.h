@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
 #include <assert.h>
 
 #define START_ADDRESS 0x0200
@@ -46,3 +48,4 @@ void createCPU(CPU *cpu);
 void destroyCPU(CPU *cpu);
 
 void LoadROM(CPU *cpu, const char *filename);
+uint8_t RandByte(void);

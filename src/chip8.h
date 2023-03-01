@@ -1,9 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
-#include <string.h>
-#include <time.h>
-#include <assert.h>
+#include <stddef.h>
 
 #define START_ADDRESS 0x0200
 
@@ -32,6 +28,7 @@ typedef struct {
 	uint8_t keypad[KEY_COUNT];
 	uint32_t video[0x0800];
 	uint16_t opcode;
+	uint64_t rng;
 
 	Chip8Func table[0xF + 1];
 	Chip8Func table0[0xE + 1];
@@ -63,8 +60,7 @@ static const uint8_t fontset[FONTSET_SIZE] =
 void createCPU(CPU *cpu);
 void destroyCPU(CPU *cpu);
 
-void LoadROM(CPU *cpu, const char *filename);
-uint8_t RandByte(void);
+uint8_t RandByte(uint64_t *s);
 
 void Chip8Cycle(CPU *cpu);
 

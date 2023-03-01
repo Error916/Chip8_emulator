@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <SDL2/SDL.h>
-
+#include "SDL.h"
 #include "chip8.h"
 
 typedef struct {
@@ -14,7 +12,7 @@ void PlatformCreate(Platform *p, char const* title, int windowWidth, int windowH
 
 		p->window = SDL_CreateWindow(title, 0, 0, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
 
-		p->renderer = SDL_CreateRenderer(p->window, -1, SDL_RENDERER_ACCELERATED);
+		p->renderer = SDL_CreateRenderer(p->window, -1, 0);
 
 		p->texture = SDL_CreateTexture(p->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, textureWidth, textureHeight);
 }
@@ -95,12 +93,12 @@ int PlatformProcessInput(uint8_t *keys) {
 
 int main (int argc, char **argv) {
 	if (argc != 4) {
-		fprintf(stderr, "Usage: %s <Scale> <Delay> <ROM>\n", argv[0]);
-		exit(EXIT_FAILURE);
+		SDL_Log("Usage: %s <Scale> <Delay> <ROM>\n", argv[0]);
+		return 1;
 	}
 
-	int videoScale = atoi(argv[1]);
-	int cycleDelay = atoi(argv[2]);
+	int videoScale = SDL_atoi(argv[1]);
+	int cycleDelay = SDL_atoi(argv[2]);
 	char const* romFilename = argv[3];
 
 	Platform plat = { 0 };
@@ -108,7 +106,14 @@ int main (int argc, char **argv) {
 
 	CPU chip8 = { 0 };
 	createCPU(&chip8);
-	LoadROM(&chip8, romFilename);
+	SDL_RWops *fp = SDL_RWFromFile(romFilename, "rb");
+	if (!fp) {
+		SDL_Log("emu: could not open ROM: %s", romFilename);
+		return 1;
+	}
+	size_t memsize = MEMORY_SIZE - START_ADDRESS;
+	SDL_RWread(fp, chip8.memory+START_ADDRESS, 1, memsize);
+	SDL_RWclose(fp);
 
 	int videoPitch = sizeof(chip8.video[0]) * VIDEO_WIDTH;
 

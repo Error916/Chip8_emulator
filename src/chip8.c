@@ -1,17 +1,15 @@
 #include "chip8.h"
 
+static void zero(void *p, size_t len) {
+    char *s = p;
+    for (size_t i = 0; i < len; i++) {
+        s[i] = 0;
+    }
+}
+
 void createCPU(CPU *cpu) {
-	memset(cpu->registers, 0, REGISTER_COUNT * sizeof (uint8_t));
-	memset(cpu->memory, 0, MEMORY_SIZE * sizeof(uint8_t));
-	cpu->index = 0;
+	zero(cpu, sizeof(*cpu));
 	cpu->pc = START_ADDRESS;
-	memset(cpu->stack, 0 ,STACK_LEVELS * sizeof(uint16_t));
-	cpu->sp = 0;
-	cpu->delayTimer = 0;
-	cpu->soundTimer = 0;
-	memset(cpu->keypad, 0, KEY_COUNT * sizeof(uint8_t));
-	memset(cpu->video, 0, VIDEO_SIZE * sizeof(uint32_t));
-	cpu->opcode = 0;
 
 	for(uint8_t i = 0; i < FONTSET_SIZE; ++i)
 		cpu->memory[FONTSET_START_ADDRESS + i] = fontset[i];
@@ -74,22 +72,9 @@ void destroyCPU(CPU *cpu) {
 	(void) cpu;
 }
 
-void LoadROM(CPU *cpu, const char *filename) {
-	FILE *fp = fopen(filename, "rb");
-	if(fp == NULL) assert(0 && "Could not open file");
-	fseek(fp, 0, SEEK_END);
-	const size_t len = ftell(fp);
-	uint8_t buffer[len];
-	fseek(fp, 0, 0);
-	fread(buffer, 1, len, fp);
-	fclose(fp);
-
-	for (size_t i = 0; i < len; ++i)
-		cpu->memory[START_ADDRESS + i] = buffer[i];
-}
-
-uint8_t RandByte(void) {
-	return rand() % 256;
+uint8_t RandByte(uint64_t *s) {
+	*s = *s*0x3243f6a8885a308d + 1;
+	return *s >> 56;
 }
 
 void Chip8Cycle(CPU *cpu) {
@@ -191,7 +176,7 @@ void OP_Bnnn(CPU *cpu) {	// JP V0, addr
 void OP_Cxkk(CPU *cpu) {	// RND Vx, byte
 	uint8_t Vx = (cpu->opcode & 0x0F00u) >> 8u;
 	uint8_t byte = cpu->opcode & 0x00FFu;
-	cpu->registers[Vx] = RandByte() & byte;
+	cpu->registers[Vx] = RandByte(&cpu->rng) & byte;
 }
 
 void OP_Dxyn(CPU *cpu) { // DRW Vx, Vy, nibble
@@ -280,7 +265,7 @@ void OP_8xyE(CPU *cpu) {	// SHL Vx {, Vy}
 }
 
 void OP_00E0(CPU *cpu) {	// CLS
-	memset(cpu->video, 0, VIDEO_SIZE * sizeof(uint32_t));
+	zero(cpu->video, sizeof(cpu->video));
 }
 
 void OP_00EE(CPU *cpu) {	// RET

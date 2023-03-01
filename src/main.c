@@ -93,12 +93,11 @@ int PlatformProcessInput(uint8_t *keys) {
 
 int main (int argc, char **argv) {
 	if (argc != 4) {
-		SDL_Log("Usage: %s <Scale> <Delay> <ROM>\n", argv[0]);
+		SDL_Log("Usage: %s <Scale> <ROM>\n", argv[0]);
 		return 1;
 	}
 
 	int videoScale = SDL_atoi(argv[1]);
-	int cycleDelay = SDL_atoi(argv[2]);
 	char const* romFilename = argv[3];
 
 	Platform plat = { 0 };
@@ -116,6 +115,7 @@ int main (int argc, char **argv) {
 	SDL_RWclose(fp);
 
 	int videoPitch = sizeof(chip8.video[0]) * VIDEO_WIDTH;
+	uint32_t frameprev = SDL_GetTicks();
 
 	int quit = 0;
 	while (!quit) {
@@ -123,7 +123,11 @@ int main (int argc, char **argv) {
 
 		Chip8Cycle(&chip8);
 		PlatformUpdate(&plat, chip8.video, videoPitch);
-		SDL_Delay(cycleDelay * 5);
+		uint32_t framenow = SDL_GetTicks();
+		if (framenow - frameprev < CLOCK_RATE_MS) {
+			SDL_Delay(CLOCK_RATE_MS - (framenow - frameprev));
+		}
+		frameprev = framenow;
 	}
 
 	PlatformDrestroy(&plat);

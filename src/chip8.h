@@ -14,6 +14,9 @@
 #define VIDEO_HEIGHT 32
 #define VIDEO_WIDTH 64
 
+#define CLOCK_HZ 60
+#define CLOCK_RATE_MS ((int) ((1.0 / CLOCK_HZ) * 1000 + 0.5))
+
 typedef void (*Chip8Func)(void *);
 
 typedef struct {

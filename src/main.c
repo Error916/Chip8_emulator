@@ -98,7 +98,7 @@ int main (int argc, char **argv) {
 	}
 
 	int videoScale = SDL_atoi(argv[1]);
-	char const* romFilename = argv[3];
+	char const* romFilename = argv[2];
 
 	Platform plat = { 0 };
 	PlatformCreate(&plat, "CHIP-8 Emulator", VIDEO_WIDTH * videoScale, VIDEO_HEIGHT * videoScale, VIDEO_WIDTH, VIDEO_HEIGHT);

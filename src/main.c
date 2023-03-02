@@ -92,7 +92,7 @@ int PlatformProcessInput(uint8_t *keys) {
 }
 
 int main (int argc, char **argv) {
-	if (argc != 4) {
+	if (argc != 3) {
 		SDL_Log("Usage: %s <Scale> <ROM>\n", argv[0]);
 		return 1;
 	}

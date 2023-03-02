@@ -17,9 +17,11 @@
 #define CLOCK_HZ 60
 #define CLOCK_RATE_MS ((int) ((1.0 / CLOCK_HZ) * 1000 + 0.5))
 
-typedef void (*Chip8Func)(void *);
+typedef struct CPU CPU;
 
-typedef struct {
+typedef void (*Chip8Func)(CPU *);
+
+struct CPU {
 	uint8_t registers[REGISTER_COUNT];
 	uint8_t memory[MEMORY_SIZE];
 	uint16_t index;
@@ -38,7 +40,7 @@ typedef struct {
 	Chip8Func table8[0xE + 1];
 	Chip8Func tableE[0xE + 1];
 	Chip8Func tableF[0x65 + 1];
-} CPU;
+};
 
 static const uint8_t fontset[FONTSET_SIZE] =
 {
